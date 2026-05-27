@@ -1,7 +1,7 @@
 local SCRIPT_NAME    = "ᴍɪɴɪᴍᴀʟ"
 local SCRIPT_VERSION = "v1.0"
 local LINE           = "━"
-local STATUS_URL     = "https://pastebin.com/raw/7dyY1S7h"
+local STATUS_URL     = "https://raw.githubusercontent.com/BegieCahaponon/ml-loder/refs/heads/main/loader%20status"
 
 -- ==========================================
 -- SETTINGS & CONFIG
