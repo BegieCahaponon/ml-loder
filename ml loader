@@ -1,1 +1,525 @@
-test
+local SCRIPT_NAME    = "ᴍɪɴɪᴍᴀʟ"
+local SCRIPT_VERSION = "v1.0"
+local LINE           = "━"
+local STATUS_URL     = "https://pastebin.com/raw/7dyY1S7h"
+
+-- ==========================================
+-- SETTINGS & CONFIG
+-- ==========================================
+local _name   = (type(myID)      == "string") and myID      or "Unknown"
+local _flag   = (type(USER_FLAG) == "string") and USER_FLAG or "?"
+local _tier   = (type(IS_VIP)    == "string") and IS_VIP    or "Standard"
+
+local OFF = {
+    func        = 0x584DDC,
+    staticObj   = 0x988,
+    mid         = 0xB8,
+    dict        = 0x308,
+    battleId    = 0x2D0,
+    dictEntries = 0x18,
+    dictCount   = 0x20,
+    entrySize   = 0x18,
+    entryKey    = 0x08,
+    entryVal    = 0x10,
+    listItems   = 0x10,
+    listSize    = 0x18,
+    arrayData   = 0x20,
+    uid         = 0x20,
+    camp        = 0x30,
+    nameIL2     = 0x40,
+    heroId      = 0x4c,
+    zoneId      = 0x60,
+    spellId     = 0x64,
+    steamName   = 0xf8,
+    steamSimple = 0x100,
+    rankLv      = 0x128,
+    elo         = 0x134,
+    mythPts     = 0x1cc,
+    strLen      = 0x10,
+    strData     = 0x14,
+}
+
+local HEROES = {
+    [0]="None",
+    [1]="Miya",[2]="Balmond",[3]="Saber",[4]="Alice",[5]="Nana",
+    [6]="Tigreal",[7]="Alucard",[8]="Karina",[9]="Akai",[10]="Franco",
+    [11]="Bane",[12]="Bruno",[13]="Clint",[14]="Rafaela",[15]="Eudora",
+    [16]="Zilong",[17]="Fanny",[18]="Layla",[19]="Minotaur",[20]="Lolita",
+    [21]="Hayabusa",[22]="Freya",[23]="Gord",[24]="Natalia",[25]="Kagura",
+    [26]="Chou",[27]="Sun",[28]="Alpha",[29]="Ruby",[30]="Yi Sun-shin",
+    [31]="Moskov",[32]="Johnson",[33]="Cyclops",[34]="Estes",[35]="Hilda",
+    [36]="Aurora",[37]="Lapu-Lapu",[38]="Vexana",[39]="Roger",[40]="Karrie",
+    [41]="Gatotkaca",[42]="Harley",[43]="Irithel",[44]="Grock",[45]="Argus",
+    [46]="Odette",[47]="Lancelot",[48]="Diggie",[49]="Hylos",[50]="Zhask",
+    [51]="Helcurt",[52]="Pharsa",[53]="Lesley",[54]="Jawhead",[55]="Angela",
+    [56]="Gusion",[57]="Valir",[58]="Martis",[59]="Uranus",[60]="Hanabi",
+    [61]="Chang'e",[62]="Kaja",[63]="Selena",[64]="Aldous",[65]="Claude",
+    [66]="Vale",[67]="Leomord",[68]="Lunox",[69]="Hanzo",[70]="Belerick",
+    [71]="Kimmy",[72]="Thamuz",[73]="Harith",[74]="Minsitthar",[75]="Kadita",
+    [76]="Faramis",[77]="Badang",[78]="Khufra",[79]="Granger",[80]="Guinevere",
+    [81]="Esmeralda",[82]="Terizla",[83]="X.Borg",[84]="Ling",[85]="Dyrroth",
+    [86]="Lylia",[87]="Baxia",[88]="Masha",[89]="Wanwan",[90]="Silvanna",
+    [91]="Cecilion",[92]="Carmilla",[93]="Atlas",[94]="Popol & Kupa",[95]="Yu Zhong",
+    [96]="Luo Yi",[97]="Benedetta",[98]="Khaleed",[99]="Barats",[100]="Brody",
+    [101]="Yve",[102]="Mathilda",[103]="Paquito",[104]="Gloo",[105]="Beatrix",
+    [106]="Phoveus",[107]="Natan",[108]="Aulus",[109]="Aamon",[110]="Valentina",
+    [111]="Edith",[112]="Floryn",[113]="Yin",[114]="Melissa",[115]="Xavier",
+    [116]="Julian",[117]="Fredrinn",[118]="Joy",[119]="Novaria",[120]="Arlott",
+    [121]="Ixia",[122]="Nolan",[123]="Cici",[124]="Chip",[125]="Zhuxin",
+    [126]="Suyou",[127]="Lukas",[128]="Kalea",[129]="Zetian",[130]="Obsidia",
+    [131]="Sora",[132]="Mercel",
+}
+
+local RANKS = {
+    [0]="Warrior III-1",[1]="Warrior III-2",[2]="Warrior III-3",
+    [3]="Warrior II-0",[4]="Warrior II-1",[5]="Warrior II-2",[6]="Warrior II-3",
+    [7]="Warrior I-0",[8]="Warrior I-1",[9]="Warrior I-2",[10]="Warrior I-3",
+    [11]="Elite III-0",[12]="Elite III-1",[13]="Elite III-2",[14]="Elite III-3",[15]="Elite III-4",
+    [16]="Elite II-0",[17]="Elite II-1",[18]="Elite II-2",[19]="Elite II-3",[20]="Elite II-4",
+    [21]="Elite I-0",[22]="Elite I-1",[23]="Elite I-2",[24]="Elite I-3",[25]="Elite I-4",
+    [26]="Master IV-0",[27]="Master IV-1",[28]="Master IV-2",[29]="Master IV-3",[30]="Master IV-4",
+    [31]="Master III-0",[32]="Master III-1",[33]="Master III-2",[34]="Master III-3",[35]="Master III-4",
+    [36]="Master II-0",[37]="Master II-1",[38]="Master II-2",[39]="Master II-3",[40]="Master II-4",
+    [41]="Master I-0",[42]="Master I-1",[43]="Master I-2",[44]="Master I-3",[45]="Master I-4",
+    [46]="GM V-0",[47]="GM V-1",[48]="GM V-2",[49]="GM V-3",[50]="GM V-4",[51]="GM V-5",
+    [52]="GM IV-0",[53]="GM IV-1",[54]="GM IV-2",[55]="GM IV-3",[56]="GM IV-4",[57]="GM IV-5",
+    [58]="GM III-0",[59]="GM III-1",[60]="GM III-2",[61]="GM III-3",[62]="GM III-4",[63]="GM III-5",
+    [64]="GM II-0",[65]="GM II-1",[66]="GM II-2",[67]="GM II-3",[68]="GM II-4",[69]="GM II-5",
+    [70]="GM I-0",[71]="GM I-1",[72]="GM I-2",[73]="GM I-3",[74]="GM I-4",[75]="GM I-5",
+    [76]="Epic V-0",[77]="Epic V-1",[78]="Epic V-2",[79]="Epic V-3",[80]="Epic V-4",[81]="Epic V-5",
+    [82]="Epic IV-0",[83]="Epic IV-1",[84]="Epic IV-2",[85]="Epic IV-3",[86]="Epic IV-4",[87]="Epic IV-5",
+    [88]="Epic III-0",[89]="Epic III-1",[90]="Epic III-2",[91]="Epic III-3",[92]="Epic III-4",[93]="Epic III-5",
+    [94]="Epic II-0",[95]="Epic II-1",[96]="Epic II-2",[97]="Epic II-3",[98]="Epic II-4",[99]="Epic II-5",
+    [100]="Epic I-0",[101]="Epic I-1",[102]="Epic I-2",[103]="Epic I-3",[104]="Epic I-4",[105]="Epic I-5",
+    [106]="Legend V-0",[107]="Legend V-1",[108]="Legend V-2",[109]="Legend V-3",[110]="Legend V-4",[111]="Legend V-5",
+    [112]="Legend IV-0",[113]="Legend IV-1",[114]="Legend IV-2",[115]="Legend IV-3",[116]="Legend IV-4",[117]="Legend IV-5",
+    [118]="Legend III-0",[119]="Legend III-1",[120]="Legend III-2",[121]="Legend III-3",[122]="Legend III-4",[123]="Legend III-5",
+    [124]="Legend II-0",[125]="Legend II-1",[126]="Legend II-2",[127]="Legend II-3",[128]="Legend II-4",[129]="Legend II-5",
+    [130]="Legend I-0",[131]="Legend I-1",[132]="Legend I-2",[133]="Legend I-3",[134]="Legend I-4",[135]="Legend I-5",
+}
+
+local SPELLS = {
+    [0]="None",[20020]="Retribution",[20030]="Inspire",[20040]="Sprint",
+    [20050]="Revitalize",[20060]="Aegis",[20070]="Petrify",[20080]="Purify",
+    [20100]="Flicker",[20140]="Flameshot",[20150]="Execute",
+    [20160]="Arrival",[20190]="Vengeance",
+}
+
+-- ──────────────── SYSTEM ───────────────
+local function checkStatus()
+    local ok, result = pcall(function()
+        return gg.makeRequest(STATUS_URL)
+    end)
+    if not ok or type(result) ~= "table" or not result.content then
+        gg.alert("✕  Connection error. Please try again.")
+        os.exit()
+    end
+    local status = result.content:match("^%s*(.-)%s*$")
+    if status ~= "true" then
+        gg.alert("✕  Access denied. Script disabled.")
+        os.exit()
+    end
+end
+
+function SECURITY_CHECK()
+    gg.setVisible(false)
+    gg.toast("⌗  initializing bypass...")
+    gg.sleep(800)
+    gg.clearResults()
+    gg.clearList()
+    gg.setRanges(gg.REGION_ANONYMOUS | gg.REGION_C_BSS)
+    gg.sleep(500)
+    gg.toast("✓  bypass activated")
+end
+
+-- ──────────────── UTILS ────────────────
+local function loading(label)
+    gg.toast("•  loading " .. label .. "...")
+    gg.sleep(300)
+end
+
+local function done(label)
+    gg.toast("✓  " .. label)
+end
+
+local function header()
+    return SCRIPT_NAME .. "  " .. SCRIPT_VERSION .. "\n" .. LINE
+end
+
+-- ==========================================
+-- MEMORY UTILITIES (LOBBY SCANNER)
+-- ==========================================
+local function memRead32(addr)
+    if not addr or addr == 0 then return 0 end
+    local s, v = pcall(gg.getValues, {{address=addr, flags=4}})
+    return (s and v and v[1] and v[1].value) or 0
+end
+
+local function memReadPtr(addr)
+    if not addr or addr == 0 then return 0 end
+    local s, v = pcall(gg.getValues, {{address=addr, flags=32}})
+    return (s and v and v[1] and v[1].value) or 0
+end
+
+local function memReadU16(addr)
+    if not addr or addr == 0 then return 0 end
+    local s, v = pcall(gg.getValues, {{address=addr, flags=2}})
+    return (s and v and v[1] and v[1].value) or 0
+end
+
+local function ptrOk(p)
+    if not p or p == 0 or p < 0x10000 then return false end
+    local s, v = pcall(gg.getValues, {{address=p, flags=4}})
+    return s and v ~= nil and #v > 0
+end
+
+local function decodeADRP(addr)
+    local raw = memRead32(addr)
+    if raw == 0 or (raw & 0x9F000000) ~= 0x90000000 then return 0 end
+    local lo  = (raw >> 29) & 0x3
+    local hi  = (raw >> 5)  & 0x7FFFF
+    local imm = (hi << 2) | lo
+    if (imm & 0x100000) ~= 0 then imm = imm - 0x200000 end
+    return (addr & ~0xFFF) + (imm << 12)
+end
+
+local function readIL2String(ptr)
+    if not ptrOk(ptr) then return "" end
+    local len = memRead32(ptr + OFF.strLen)
+    if len <= 0 then return "" end
+    if len > 64 then len = 64 end
+    local buf = {}
+    for i = 0, len - 1 do
+        local ch = memReadU16(ptr + OFF.strData + i * 2) & 0xFFFF
+        if ch == 0 then break end
+        buf[#buf+1] = (ch >= 32 and ch <= 126) and string.char(ch) or "?"
+    end
+    return table.concat(buf)
+end
+
+local function getHero(id)
+    return HEROES[id] or ("Hero#" .. tostring(id or "?"))
+end
+
+local function getRank(lv, mp)
+    lv = lv or 0
+    mp = mp or 0
+    if lv > 135 then
+        local pts = math.floor((mp + 1260) / 10)
+        return pts >= 600 and ("Myth Glory " .. pts) or ("Mythic " .. pts)
+    end
+    return RANKS[lv] or ("Rank " .. lv)
+end
+
+local function getSpell(id)
+    return SPELLS[id] or tostring(id or "?")
+end
+
+local function str(v)  return (v and v ~= "") and v or "Unknown" end
+local function num(v)  return tostring(v or 0) end
+
+local function getLibBase()
+    local list = gg.getRangesList("libcsharp.so")
+    if not list or #list == 0 then return 0 end
+    for _, r in ipairs(list) do
+        if r.state == "Xa" then return r.start end
+    end
+    return 0
+end
+
+local function findPlayerList(mid, dict)
+    local battleId   = memReadPtr(mid + OFF.battleId)
+    local entriesPtr = memReadPtr(dict + OFF.dictEntries)
+    local entryCount = memRead32(dict + OFF.dictCount)
+
+    if not ptrOk(entriesPtr) or entryCount <= 0 then return 0 end
+
+    for i = 0, entryCount - 1 do
+        local base = entriesPtr + OFF.arrayData + i * OFF.entrySize
+        if memRead32(base) >= 0 then
+            local k = memReadPtr(base + OFF.entryKey)
+            if k == battleId and battleId ~= 0 then
+                return memReadPtr(base + OFF.entryVal)
+            end
+        end
+    end
+
+    for i = 0, entryCount - 1 do
+        local base = entriesPtr + OFF.arrayData + i * OFF.entrySize
+        if memRead32(base) >= 0 then
+            local cand = memReadPtr(base + OFF.entryVal)
+            if ptrOk(cand) then
+                local cnt = memRead32(cand + OFF.listSize)
+                if cnt >= 1 and cnt <= 10 then
+                    local items = memReadPtr(cand + OFF.listItems)
+                    if ptrOk(items) then
+                        local first = memReadPtr(items + OFF.arrayData)
+                        if ptrOk(first) then
+                            local hid  = memRead32(first + OFF.heroId)
+                            local camp = memRead32(first + OFF.camp)
+                            if hid >= 0 and hid <= 2000 and camp >= 1 and camp <= 2 then
+                                return cand
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return 0
+end
+
+local function scanPlayers(playerList)
+    local blue, red = {}, {}
+    local count    = memRead32(playerList + OFF.listSize)
+    local itemsPtr = memReadPtr(playerList + OFF.listItems)
+
+    if count <= 0 or count > 10 or not ptrOk(itemsPtr) then
+        return nil, nil, "Invalid player count: " .. tostring(count)
+    end
+
+    for i = 0, count - 1 do
+        local entry = memReadPtr(itemsPtr + OFF.arrayData + i * 8)
+        if ptrOk(entry) then
+            local hid  = memRead32(entry + OFF.heroId)
+            local camp = memRead32(entry + OFF.camp)
+            if hid >= 0 and hid <= 2000 and camp >= 1 and camp <= 2 then
+                local uid  = memReadPtr(entry + OFF.uid)
+                local name = readIL2String(memReadPtr(entry + OFF.nameIL2))
+                if name == "" then name = readIL2String(memReadPtr(entry + OFF.steamName)) end
+                if name == "" then name = readIL2String(memReadPtr(entry + OFF.steamSimple)) end
+
+                local p = {
+                    name    = name,
+                    heroId  = hid,
+                    spellId = memRead32(entry + OFF.spellId),
+                    rank    = getRank(memRead32(entry + OFF.rankLv), memRead32(entry + OFF.mythPts)),
+                    elo     = memRead32(entry + OFF.elo),
+                    uid     = uid,
+                    zoneId  = memRead32(entry + OFF.zoneId),
+                    isBot   = (uid >= 0 and uid <= 9),
+                }
+
+                if camp == 1 then blue[#blue+1] = p else red[#red+1] = p end
+            end
+        end
+    end
+    return blue, red, nil
+end
+
+local function buildTeamBlock(team, label, idx)
+    local lines = {}
+    local humans, bots = 0, 0
+    for _, p in ipairs(team) do
+        if p.isBot then bots = bots + 1 else humans = humans + 1 end
+    end
+
+    lines[#lines+1] = "[ " .. label .. " ]"
+    lines[#lines+1] = "  Humans: " .. humans .. "  |  Bots: " .. bots
+    lines[#lines+1] = "----------------------------"
+
+    if #team == 0 then
+        lines[#lines+1] = "  (empty)"
+    end
+
+    for i, p in ipairs(team) do
+        local tag = p.isBot and "BOT" or "Player"
+        lines[#lines+1] = ""
+        lines[#lines+1] = "  " .. (idx + i - 1) .. ". " .. str(p.name) .. "  [" .. tag .. "]"
+        lines[#lines+1] = "     Hero   : " .. getHero(p.heroId)
+        lines[#lines+1] = "     Spell  : " .. getSpell(p.spellId)
+        lines[#lines+1] = "     Rank   : " .. str(p.rank)
+        lines[#lines+1] = "     ELO    : " .. num(p.elo)
+    end
+
+    lines[#lines+1] = ""
+    return table.concat(lines, "\n")
+end
+
+-- ──────────────── FEATURES ─────────────
+local function map()
+    loading("map hack")
+    gg.setRanges(gg.REGION_ANONYMOUS)
+    gg.clearResults()
+    gg.searchNumber(
+        "98,784,247,822;47,244,640,279;4,510,805,388,492,275,723;:9",
+        gg.TYPE_QWORD
+    )
+    gg.refineNumber("98,784,247,822", gg.TYPE_QWORD)
+    local results = gg.getResults(9999)
+    if #results > 0 then
+        gg.editAll("98,784,247,823", gg.TYPE_QWORD)
+    end
+    gg.clearResults()
+    done("ᴍᴀᴘ ʜᴀᴄᴋ ᴀᴄᴛɪᴠᴀᴛᴇᴅ")
+end
+
+local function DRONE_4X()
+    loading("drone 4x")
+    gg.clearResults()
+    gg.setRanges(gg.REGION_ANONYMOUS)
+
+    gg.searchNumber("1089806008;-1053839852;1089722122:512", gg.TYPE_DWORD)
+    local r1 = gg.getResults(20)
+    for _, v in ipairs(r1) do
+        if v.value == "1089806008"  then v.value = "1094506008";  v.freeze = true end
+        if v.value == "-1053839852" then v.value = "-1048839852"; v.freeze = true end
+        if v.value == "1089722122"  then v.value = "1094522122";  v.freeze = true end
+    end
+    gg.setValues(r1)
+
+    gg.clearResults()
+    gg.searchNumber("-1057677640;-1057761526;1110143140:512", gg.TYPE_DWORD)
+    local r2 = gg.getResults(20)
+    for _, v in ipairs(r2) do
+        if v.value == "-1057677640" then v.value = "-1053577640"; v.freeze = true end
+        if v.value == "-1057761526" then v.value = "-1054071526"; v.freeze = true end
+    end
+    gg.setValues(r2)
+
+    gg.clearResults()
+    gg.setVisible(false)
+    done("ᴅʀᴏɴᴇ 4x ᴀᴄᴛɪᴠᴀᴛᴇᴅ")
+end
+
+local function grass1()
+    gg.setRanges(gg.REGION_C_ALLOC)
+    gg.clearResults()
+    gg.searchNumber("1.07619722e-41F;7.21668709e-43F;1.0F;2.1019477e-44F", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+    gg.refineNumber("1", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+    revert = gg.getResults(9999, nil, nil, nil, nil, nil, nil, nil, nil)
+    gg.editAll("2", gg.TYPE_FLOAT)
+    gg.toast("Black Body ")
+    gg.clearResults()
+end
+
+local largeHP_revert = nil
+
+local function largeHP()
+    local sub = gg.choice({"◌  ᴀᴄᴛɪᴠᴀᴛᴇ", "◌  ʀᴇᴠᴇʀᴛ"}, nil, "ʟᴀʀɢᴇ ʜᴘ")
+    if sub == nil then return end
+    if sub == 1 then
+        gg.setRanges(gg.REGION_ANONYMOUS)
+        gg.searchNumber("1.0F;0.85000002384F", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+        gg.refineNumber("1", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+        largeHP_revert = gg.getResults(5000, nil, nil, nil, nil, nil, nil, nil, nil)
+        for _, v in ipairs(largeHP_revert) do
+            v.value = "1"
+        end
+        gg.editAll("3", gg.TYPE_FLOAT)
+        local t = gg.getResults(5000, nil, nil, nil, nil, nil, nil, nil, nil)
+        gg.addListItems(t)
+        t = nil
+        gg.toast("Large HP Lord Turtle Buff On")
+    elseif sub == 2 then
+        if largeHP_revert ~= nil then
+            for _, v in ipairs(largeHP_revert) do
+                v.value = "1"
+                v.freeze = false
+            end
+            gg.setValues(largeHP_revert)
+            largeHP_revert = nil
+            gg.toast("Large HP Reverted")
+        else
+            gg.toast("Nothing to revert")
+        end
+    end
+end
+
+local function roomInfo()
+    gg.toast("Scanning lobby...")
+
+    local base = getLibBase()
+    if base == 0 then
+        gg.alert("Error: libcsharp.so not found.")
+        return
+    end
+
+    local page = decodeADRP(base + OFF.func + 0x10)
+    if page == 0 then
+        gg.alert("Error: ADRP decode failed.")
+        return
+    end
+
+    local obj  = memReadPtr(page + OFF.staticObj)
+    local mid  = ptrOk(obj) and memReadPtr(obj + OFF.mid) or 0
+    local dict = ptrOk(mid) and memReadPtr(mid + OFF.dict) or 0
+
+    if not ptrOk(dict) then
+        gg.alert("Open this at the Hero Select screen.")
+        return
+    end
+
+    local pList = findPlayerList(mid, dict)
+    if not ptrOk(pList) then
+        gg.alert("No player list found.\nRun at Hero Select before banning.")
+        return
+    end
+
+    local blue, red, err = scanPlayers(pList)
+    if err then
+        gg.alert("Error: " .. err)
+        return
+    end
+
+    local totalH, totalB = 0, 0
+    for _, p in ipairs(blue) do if p.isBot then totalB=totalB+1 else totalH=totalH+1 end end
+    for _, p in ipairs(red)  do if p.isBot then totalB=totalB+1 else totalH=totalH+1 end end
+
+    local out =
+        "============================\n" ..
+        "       LOBBY SCANNER\n" ..
+        "  Total: " .. totalH .. " Players  " .. totalB .. " Bots\n" ..
+        "============================\n\n" ..
+        buildTeamBlock(blue, "BLUE TEAM", 1) .. "\n" ..
+        buildTeamBlock(red,  "RED TEAM",  #blue + 1)
+
+    gg.alert(out)
+end
+
+-- ──────────────── STARTUP ──────────────
+gg.toast("•  checking status...")
+checkStatus()
+SECURITY_CHECK()
+gg.toast("✓  welcome")
+gg.sleep(400)
+
+-- ──────────────── INTERFACE ────────────
+local MENU = {
+    "◌  ᴍᴀᴘ ʜᴀᴄᴋ",
+    "◌  ᴅʀᴏɴᴇ 4x",
+    "◌  ʙʟᴀᴄᴋ ʙᴏᴅʏ",
+    "◌  ʟᴀʀɢᴇ ʜᴘ",
+    "◌  ʀᴏᴏᴍ ɪɴꜰᴏ",
+    "✕  ᴇxɪᴛ",
+}
+
+local function SHOW_MENU()
+    local choice = gg.choice(MENU, nil, header())
+    
+    if choice == nil then
+        -- User closed or minimized the menu window without making a selection
+    elseif choice == 1 then
+        map()
+    elseif choice == 2 then
+        DRONE_4X()
+    elseif choice == 3 then
+        grass1()
+    elseif choice == 4 then
+        largeHP()
+    elseif choice == 5 then
+        roomInfo()
+    elseif choice == 6 then
+        gg.toast("✕  Script closed")
+        os.exit()
+    end
+end
+
+-- ──────────────── LOOP WINDOW ──────────
+while true do
+    if gg.isVisible(true) then
+        gg.setVisible(false)
+        SHOW_MENU()
+    end
+    gg.sleep(100)
+end
