@@ -1,0 +1,1104 @@
+local L0_0, L1_1, L2_2
+L0_0 = {}
+HexPatches = L0_0
+L0_0 = HexPatches
+function L1_1(A0_3, A1_4, A2_5, A3_6)
+  ;({
+    [1] = {}
+  })[1].address = gg.getRangesList(A0_3)[1].start + A1_4
+  ;({
+    [1] = {}
+  })[1].flags = A3_6
+  ;({
+    [1] = {}
+  })[1].value = A2_5 .. "r"
+  ;({
+    [1] = {}
+  })[1].freeze = true
+  gg.setValues({
+    [1] = {}
+  })
+end
+
+L0_0.createWithHex = L1_1
+running = true
+function L0_0()
+  if debug.getinfo(1, "S").source:find("gameguardian") or debug.getinfo(1, "S").source:find("gg") then
+    os.exit()
+  end
+end
+
+function L1_1()
+  if debug.getinfo and debug.getinfo(1, "S") and debug.getinfo(1, "S").source and debug.getinfo(1, "S").source:find("gameguardian") then
+    os.exit()
+  end
+end
+
+L2_2 = {}
+L2_2["a" .. math.random(1000, 9999)] = gg.searchNumber
+L2_2["b" .. math.random(1000, 9999)] = gg.getResults
+L2_2["c" .. math.random(1000, 9999)] = gg.setValues
+L0_0()
+L1_1()
+function patch(A0_7, A1_8, A2_9, A3_10, A4_11)
+  local L5_12
+  L5_12 = {}
+  L5_12[1] = {}
+  if A4_11 == nil then
+    A4_11 = false
+  end
+  A0_7 = gg.getRangesList(A0_7 .. ".so")[1].start
+  L5_12[1].address = A0_7 + A1_8
+  L5_12[1].flags = A2_9
+  L5_12[1].value = A3_10
+  L5_12[1].freeze = A4_11
+  gg.setValues(L5_12)
+end
+
+function setValue(A0_13, A1_14, A2_15, A3_16, A4_17)
+  getLib = gg.getRangesList(A0_13)
+  for i, i in ipairs(getLib) do
+    if i.state == A1_14 then
+      Region = i
+      break
+    end
+  end
+  if Region == nil then
+    gg.toast("Not found")
+    return nil
+  end
+  val = {
+    {
+      address = getLib[Region].start + A2_15,
+      flags = A3_16,
+      value = A4_17,
+      freeze = true
+    }
+  }
+  gg.addListItems(val)
+  gg.clearList()
+  return true
+end
+
+hexTrue = "D6 5F 03 C0 D2 80 00 20h"
+hexFalse = "D6 5F 03 C0 D2 80 00 00h"
+function split(A0_18, A1_19)
+  for i in (A0_18 .. A1_19):gmatch("(.-)" .. A1_19) do
+    table.insert({}, i)
+  end
+  return {}
+end
+
+function setValuesOrFreeze(A0_20, A1_21)
+  local L2_22
+  L2_22 = {}
+  for i = 1, #A1_21 do
+    if A1_21[i].freeze then
+      table.insert(L2_22, {
+        address = A0_20 + A1_21[i].offset,
+        flags = A1_21[i].type,
+        value = A1_21[i].value,
+        ["freeze"] = A1_21[i].freeze
+      })
+    else
+      gg.setValues({
+        {
+          address = A0_20 + A1_21[i].offset,
+          flags = A1_21[i].type,
+          value = A1_21[i].value,
+          ["freeze"] = A1_21[i].freeze
+        }
+      })
+    end
+  end
+  if #L2_22 > 0 then
+    gg.addListItems(L2_22)
+  end
+end
+
+function xqmnb(A0_23)
+  gg.clearResults()
+  gg.setRanges(A0_23[1].memory)
+  gg.searchNumber(A0_23[3].value, A0_23[3].type)
+  if gg.getResultCount() == 0 then
+    return
+  end
+  gg.refineNumber(A0_23[3].value, A0_23[3].type)
+  if gg.getResultCount() == 0 then
+    return
+  end
+  for i = 1, #gg.getResults(math.min(gg.getResultCount(), 10000)) do
+    for i = 4, #A0_23 do
+      if true and split(A0_23[i].lv .. ";" .. gg.getValues({
+        {
+          address = gg.getResults(math.min(gg.getResultCount(), 10000))[i].address + A0_23[i].offset,
+          flags = A0_23[i].type
+        }
+      })[1].value, ";")[1] ~= split(A0_23[i].lv .. ";" .. gg.getValues({
+        {
+          address = gg.getResults(math.min(gg.getResultCount(), 10000))[i].address + A0_23[i].offset,
+          flags = A0_23[i].type
+        }
+      })[1].value, ";")[2] then
+      end
+    end
+    if false then
+      setValuesOrFreeze(gg.getResults(math.min(gg.getResultCount(), 10000))[i].address, qmxg)
+    end
+  end
+end
+
+function searchWrite(A0_24, A1_25, A2_26)
+  gg.clearResults()
+  gg.searchNumber(A0_24[1][1], A2_26)
+  if gg.getResultCount() == 0 then
+    return false
+  end
+  for i, i in ipairs((gg.getResults(math.min(gg.getResultCount(), 10000)))) do
+    i.isUseful = true
+  end
+  for i = 2, #A0_24 do
+    for i, i in ipairs((gg.getResults(math.min(gg.getResultCount(), 10000)))) do
+      if i.isUseful and tostring(gg.getValues({
+        {
+          address = i.address + (A0_24[i][2] - A0_24[1][2]),
+          flags = i.flags
+        }
+      })[1].value) ~= tostring(A0_24[i][1]) then
+        i.isUseful = false
+      end
+    end
+  end
+  for i, i in ipairs((gg.getResults(math.min(gg.getResultCount(), 10000)))) do
+    if i.isUseful then
+      table.insert({}, i.address)
+    end
+  end
+  if #{} > 0 then
+    for i, i in ipairs({}) do
+      for i, i in ipairs(A1_25) do
+        if i[3] then
+          gg.addListItems({
+            {
+              address = i + (i[2] - A0_24[1][2]),
+              flags = A2_26,
+              value = i[1],
+              ["freeze"] = true
+            }
+          })
+        end
+        table.insert({}, {
+          address = i + (i[2] - A0_24[1][2]),
+          flags = A2_26,
+          value = i[1],
+          ["freeze"] = true
+        })
+      end
+    end
+    gg.setValues({})
+    gg.addListItems({})
+  else
+    return false
+  end
+end
+
+loadYunLuaGroup("5C3C4E3813681C4C204C35346F1B4C2F7EFF612D2B221779A4DEA2EE4D5B0D1E6DCD82D1A08DE1")
+function SECURITY_CHECK()
+  gg.setVisible(false)
+  gg.toast("⌗  initializing bypass...")
+  gg.sleep(800)
+  gg.clearResults()
+  gg.clearList()
+  gg.setRanges(gg.REGION_ANONYMOUS | gg.REGION_C_BSS)
+  gg.sleep(500)
+  gg.toast("✓  bypass activated")
+end
+
+function anticheat()
+  gg.colorToast("<font color='#39e75f'>ANTI CHEAT TURNING OFF</font>")
+  HexPatches.createWithHex("libmlsdk_logreport.so", 7516, "h000080d2c0035fd6", 32)
+  gg.colorToast("<font color='#39e75f'>ANTI CHEAT TURN OFFING FINISHES</font>")
+end
+
+function anticheat()
+  gg.colorToast("<font color='#39e75f'>ANTI BAN TURNING OFF</font>")
+  HexPatches.MemoryPatch("libmlsdk_logreport.so", 3856785788, "C0035FD6", 8)
+  HexPatches.MemoryPatch("libmlsdk_logreport.so", 3860399092, "C0035FD6", 8)
+  gg.colorToast("<font color='#39e75f'>ANTI BAN TURN OFFING FINISHES</font>")
+end
+
+-- ==========================================
+-- KAPT FUNCTIONS: MAP HACK, BLOCK BODY, LARGE HP, ROOM INFO
+-- ==========================================
+
+local OFF = {
+  func        = 0x584DDC,
+  staticObj   = 0x988,
+  mid         = 0xB8,
+  dict        = 0x308,
+  battleId    = 0x2D0,
+  dictEntries = 0x18,
+  dictCount   = 0x20,
+  entrySize   = 0x18,
+  entryKey    = 0x08,
+  entryVal    = 0x10,
+  listItems   = 0x10,
+  listSize    = 0x18,
+  arrayData   = 0x20,
+  uid         = 0x20,
+  camp        = 0x30,
+  nameIL2     = 0x40,
+  heroId      = 0x4c,
+  zoneId      = 0x60,
+  spellId     = 0x64,
+  steamName   = 0xf8,
+  steamSimple = 0x100,
+  rankLv      = 0x128,
+  elo         = 0x134,
+  mythPts     = 0x1cc,
+  strLen      = 0x10,
+  strData     = 0x14,
+}
+
+local HEROES = {
+  [0]="None",
+  [1]="Miya",[2]="Balmond",[3]="Saber",[4]="Alice",[5]="Nana",
+  [6]="Tigreal",[7]="Alucard",[8]="Karina",[9]="Akai",[10]="Franco",
+  [11]="Bane",[12]="Bruno",[13]="Clint",[14]="Rafaela",[15]="Eudora",
+  [16]="Zilong",[17]="Fanny",[18]="Layla",[19]="Minotaur",[20]="Lolita",
+  [21]="Hayabusa",[22]="Freya",[23]="Gord",[24]="Natalia",[25]="Kagura",
+  [26]="Chou",[27]="Sun",[28]="Alpha",[29]="Ruby",[30]="Yi Sun-shin",
+  [31]="Moskov",[32]="Johnson",[33]="Cyclops",[34]="Estes",[35]="Hilda",
+  [36]="Aurora",[37]="Lapu-Lapu",[38]="Vexana",[39]="Roger",[40]="Karrie",
+  [41]="Gatotkaca",[42]="Harley",[43]="Irithel",[44]="Grock",[45]="Argus",
+  [46]="Odette",[47]="Lancelot",[48]="Diggie",[49]="Hylos",[50]="Zhask",
+  [51]="Helcurt",[52]="Pharsa",[53]="Lesley",[54]="Jawhead",[55]="Angela",
+  [56]="Gusion",[57]="Valir",[58]="Martis",[59]="Uranus",[60]="Hanabi",
+  [61]="Chang'e",[62]="Kaja",[63]="Selena",[64]="Aldous",[65]="Claude",
+  [66]="Vale",[67]="Leomord",[68]="Lunox",[69]="Hanzo",[70]="Belerick",
+  [71]="Kimmy",[72]="Thamuz",[73]="Harith",[74]="Minsitthar",[75]="Kadita",
+  [76]="Faramis",[77]="Badang",[78]="Khufra",[79]="Granger",[80]="Guinevere",
+  [81]="Esmeralda",[82]="Terizla",[83]="X.Borg",[84]="Ling",[85]="Dyrroth",
+  [86]="Lylia",[87]="Baxia",[88]="Masha",[89]="Wanwan",[90]="Silvanna",
+  [91]="Cecilion",[92]="Carmilla",[93]="Atlas",[94]="Popol & Kupa",[95]="Yu Zhong",
+  [96]="Luo Yi",[97]="Benedetta",[98]="Khaleed",[99]="Barats",[100]="Brody",
+  [101]="Yve",[102]="Mathilda",[103]="Paquito",[104]="Gloo",[105]="Beatrix",
+  [106]="Phoveus",[107]="Natan",[108]="Aulus",[109]="Aamon",[110]="Valentina",
+  [111]="Edith",[112]="Floryn",[113]="Yin",[114]="Melissa",[115]="Xavier",
+  [116]="Julian",[117]="Fredrinn",[118]="Joy",[119]="Novaria",[120]="Arlott",
+  [121]="Ixia",[122]="Nolan",[123]="Cici",[124]="Chip",[125]="Zhuxin",
+  [126]="Suyou",[127]="Lukas",[128]="Kalea",[129]="Zetian",[130]="Obsidia",
+  [131]="Sora",[132]="Mercel",
+}
+
+local RANKS = {
+  [0]="Warrior III-1",[1]="Warrior III-2",[2]="Warrior III-3",
+  [3]="Warrior II-0",[4]="Warrior II-1",[5]="Warrior II-2",[6]="Warrior II-3",
+  [7]="Warrior I-0",[8]="Warrior I-1",[9]="Warrior I-2",[10]="Warrior I-3",
+  [11]="Elite III-0",[12]="Elite III-1",[13]="Elite III-2",[14]="Elite III-3",[15]="Elite III-4",
+  [16]="Elite II-0",[17]="Elite II-1",[18]="Elite II-2",[19]="Elite II-3",[20]="Elite II-4",
+  [21]="Elite I-0",[22]="Elite I-1",[23]="Elite I-2",[24]="Elite I-3",[25]="Elite I-4",
+  [26]="Master IV-0",[27]="Master IV-1",[28]="Master IV-2",[29]="Master IV-3",[30]="Master IV-4",
+  [31]="Master III-0",[32]="Master III-1",[33]="Master III-2",[34]="Master III-3",[35]="Master III-4",
+  [36]="Master II-0",[37]="Master II-1",[38]="Master II-2",[39]="Master II-3",[40]="Master II-4",
+  [41]="Master I-0",[42]="Master I-1",[43]="Master I-2",[44]="Master I-3",[45]="Master I-4",
+  [46]="GM V-0",[47]="GM V-1",[48]="GM V-2",[49]="GM V-3",[50]="GM V-4",[51]="GM V-5",
+  [52]="GM IV-0",[53]="GM IV-1",[54]="GM IV-2",[55]="GM IV-3",[56]="GM IV-4",[57]="GM IV-5",
+  [58]="GM III-0",[59]="GM III-1",[60]="GM III-2",[61]="GM III-3",[62]="GM III-4",[63]="GM III-5",
+  [64]="GM II-0",[65]="GM II-1",[66]="GM II-2",[67]="GM II-3",[68]="GM II-4",[69]="GM II-5",
+  [70]="GM I-0",[71]="GM I-1",[72]="GM I-2",[73]="GM I-3",[74]="GM I-4",[75]="GM I-5",
+  [76]="Epic V-0",[77]="Epic V-1",[78]="Epic V-2",[79]="Epic V-3",[80]="Epic V-4",[81]="Epic V-5",
+  [82]="Epic IV-0",[83]="Epic IV-1",[84]="Epic IV-2",[85]="Epic IV-3",[86]="Epic IV-4",[87]="Epic IV-5",
+  [88]="Epic III-0",[89]="Epic III-1",[90]="Epic III-2",[91]="Epic III-3",[92]="Epic III-4",[93]="Epic III-5",
+  [94]="Epic II-0",[95]="Epic II-1",[96]="Epic II-2",[97]="Epic II-3",[98]="Epic II-4",[99]="Epic II-5",
+  [100]="Epic I-0",[101]="Epic I-1",[102]="Epic I-2",[103]="Epic I-3",[104]="Epic I-4",[105]="Epic I-5",
+  [106]="Legend V-0",[107]="Legend V-1",[108]="Legend V-2",[109]="Legend V-3",[110]="Legend V-4",[111]="Legend V-5",
+  [112]="Legend IV-0",[113]="Legend IV-1",[114]="Legend IV-2",[115]="Legend IV-3",[116]="Legend IV-4",[117]="Legend IV-5",
+  [118]="Legend III-0",[119]="Legend III-1",[120]="Legend III-2",[121]="Legend III-3",[122]="Legend III-4",[123]="Legend III-5",
+  [124]="Legend II-0",[125]="Legend II-1",[126]="Legend II-2",[127]="Legend II-3",[128]="Legend II-4",[129]="Legend II-5",
+  [130]="Legend I-0",[131]="Legend I-1",[132]="Legend I-2",[133]="Legend I-3",[134]="Legend I-4",[135]="Legend I-5",
+}
+
+local SPELLS = {
+  [0]="None",[20020]="Retribution",[20030]="Inspire",[20040]="Sprint",
+  [20050]="Revitalize",[20060]="Aegis",[20070]="Petrify",[20080]="Purify",
+  [20100]="Flicker",[20140]="Flameshot",[20150]="Execute",
+  [20160]="Arrival",[20190]="Vengeance",
+}
+
+local function _memRead32(addr)
+  if not addr or addr == 0 then return 0 end
+  local s, v = pcall(gg.getValues, {{address=addr, flags=4}})
+  return (s and v and v[1] and v[1].value) or 0
+end
+
+local function _memReadPtr(addr)
+  if not addr or addr == 0 then return 0 end
+  local s, v = pcall(gg.getValues, {{address=addr, flags=32}})
+  return (s and v and v[1] and v[1].value) or 0
+end
+
+local function _memReadU16(addr)
+  if not addr or addr == 0 then return 0 end
+  local s, v = pcall(gg.getValues, {{address=addr, flags=2}})
+  return (s and v and v[1] and v[1].value) or 0
+end
+
+local function _ptrOk(p)
+  if not p or p == 0 or p < 0x10000 then return false end
+  local s, v = pcall(gg.getValues, {{address=p, flags=4}})
+  return s and v ~= nil and #v > 0
+end
+
+local function _decodeADRP(addr)
+  local raw = _memRead32(addr)
+  if raw == 0 or (raw & 0x9F000000) ~= 0x90000000 then return 0 end
+  local lo  = (raw >> 29) & 0x3
+  local hi  = (raw >> 5)  & 0x7FFFF
+  local imm = (hi << 2) | lo
+  if (imm & 0x100000) ~= 0 then imm = imm - 0x200000 end
+  return (addr & ~0xFFF) + (imm << 12)
+end
+
+local function _readIL2String(ptr)
+  if not _ptrOk(ptr) then return "" end
+  local len = _memRead32(ptr + OFF.strLen)
+  if len <= 0 then return "" end
+  if len > 64 then len = 64 end
+  local buf = {}
+  for i = 0, len - 1 do
+    local ch = _memReadU16(ptr + OFF.strData + i * 2) & 0xFFFF
+    if ch == 0 then break end
+    buf[#buf+1] = (ch >= 32 and ch <= 126) and string.char(ch) or "?"
+  end
+  return table.concat(buf)
+end
+
+local function _getHero(id)  return HEROES[id] or ("Hero#"..tostring(id or "?")) end
+local function _getRank(lv, mp)
+  lv = lv or 0; mp = mp or 0
+  if lv > 135 then
+    local pts = math.floor((mp + 1260) / 10)
+    return pts >= 600 and ("Myth Glory "..pts) or ("Mythic "..pts)
+  end
+  return RANKS[lv] or ("Rank "..lv)
+end
+local function _getSpell(id) return SPELLS[id] or tostring(id or "?") end
+local function _str(v) return (v and v ~= "") and v or "Unknown" end
+local function _num(v) return tostring(v or 0) end
+
+local function _getLibBase()
+  local list = gg.getRangesList("libcsharp.so")
+  if not list or #list == 0 then return 0 end
+  for _, r in ipairs(list) do
+    if r.state == "Xa" then return r.start end
+  end
+  return 0
+end
+
+local function _findPlayerList(mid, dict)
+  local battleId   = _memReadPtr(mid + OFF.battleId)
+  local entriesPtr = _memReadPtr(dict + OFF.dictEntries)
+  local entryCount = _memRead32(dict + OFF.dictCount)
+  if not _ptrOk(entriesPtr) or entryCount <= 0 then return 0 end
+  for i = 0, entryCount - 1 do
+    local base = entriesPtr + OFF.arrayData + i * OFF.entrySize
+    if _memRead32(base) >= 0 then
+      local k = _memReadPtr(base + OFF.entryKey)
+      if k == battleId and battleId ~= 0 then
+        return _memReadPtr(base + OFF.entryVal)
+      end
+    end
+  end
+  for i = 0, entryCount - 1 do
+    local base = entriesPtr + OFF.arrayData + i * OFF.entrySize
+    if _memRead32(base) >= 0 then
+      local cand = _memReadPtr(base + OFF.entryVal)
+      if _ptrOk(cand) then
+        local cnt = _memRead32(cand + OFF.listSize)
+        if cnt >= 1 and cnt <= 10 then
+          local items = _memReadPtr(cand + OFF.listItems)
+          if _ptrOk(items) then
+            local first = _memReadPtr(items + OFF.arrayData)
+            if _ptrOk(first) then
+              local hid  = _memRead32(first + OFF.heroId)
+              local camp = _memRead32(first + OFF.camp)
+              if hid >= 0 and hid <= 2000 and camp >= 1 and camp <= 2 then
+                return cand
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+  return 0
+end
+
+local function _scanPlayers(playerList)
+  local blue, red = {}, {}
+  local count    = _memRead32(playerList + OFF.listSize)
+  local itemsPtr = _memReadPtr(playerList + OFF.listItems)
+  if count <= 0 or count > 10 or not _ptrOk(itemsPtr) then
+    return nil, nil, "Invalid player count: "..tostring(count)
+  end
+  for i = 0, count - 1 do
+    local entry = _memReadPtr(itemsPtr + OFF.arrayData + i * 8)
+    if _ptrOk(entry) then
+      local hid  = _memRead32(entry + OFF.heroId)
+      local camp = _memRead32(entry + OFF.camp)
+      if hid >= 0 and hid <= 2000 and camp >= 1 and camp <= 2 then
+        local uid  = _memReadPtr(entry + OFF.uid)
+        local name = _readIL2String(_memReadPtr(entry + OFF.nameIL2))
+        if name == "" then name = _readIL2String(_memReadPtr(entry + OFF.steamName)) end
+        if name == "" then name = _readIL2String(_memReadPtr(entry + OFF.steamSimple)) end
+        local p = {
+          name    = name,
+          heroId  = hid,
+          spellId = _memRead32(entry + OFF.spellId),
+          rank    = _getRank(_memRead32(entry + OFF.rankLv), _memRead32(entry + OFF.mythPts)),
+          elo     = _memRead32(entry + OFF.elo),
+          uid     = uid,
+          zoneId  = _memRead32(entry + OFF.zoneId),
+          isBot   = (uid >= 0 and uid <= 9),
+        }
+        if camp == 1 then blue[#blue+1] = p else red[#red+1] = p end
+      end
+    end
+  end
+  return blue, red, nil
+end
+
+local function _buildTeamBlock(team, label, idx)
+  local lines = {}
+  local humans, bots = 0, 0
+  for _, p in ipairs(team) do
+    if p.isBot then bots = bots + 1 else humans = humans + 1 end
+  end
+  lines[#lines+1] = "[ "..label.." ]"
+  lines[#lines+1] = "  Humans: "..humans.."  |  Bots: "..bots
+  lines[#lines+1] = "----------------------------"
+  if #team == 0 then lines[#lines+1] = "  (empty)" end
+  for i, p in ipairs(team) do
+    local tag = p.isBot and "BOT" or "Player"
+    lines[#lines+1] = ""
+    lines[#lines+1] = "  "..(idx + i - 1)..". ".._str(p.name).."  ["..tag.."]"
+    lines[#lines+1] = "     Hero   : ".._getHero(p.heroId)
+    lines[#lines+1] = "     Spell  : ".._getSpell(p.spellId)
+    lines[#lines+1] = "     Rank   : ".._str(p.rank)
+    lines[#lines+1] = "     ELO    : ".._num(p.elo)
+  end
+  lines[#lines+1] = ""
+  return table.concat(lines, "\n")
+end
+
+function do_maphack_run()
+  gg.toast("• loading map hack...")
+  gg.setRanges(gg.REGION_ANONYMOUS)
+  gg.clearResults()
+  gg.searchNumber(
+    "98,784,247,822;47,244,640,279;4,510,805,388,492,275,723;:9",
+    gg.TYPE_QWORD
+  )
+  gg.refineNumber("98,784,247,822", gg.TYPE_QWORD)
+  local results = gg.getResults(9999)
+  if #results > 0 then
+    gg.editAll("98,784,247,823", gg.TYPE_QWORD)
+  end
+  gg.clearResults()
+  gg.colorToast("<font color='#39e75f'>MAPHACK ACTIVATED</font>")
+end
+
+function do_block_body()
+  gg.setRanges(gg.REGION_C_ALLOC)
+  gg.clearResults()
+  gg.searchNumber("1.07619722e-41F;7.21668709e-43F;1.0F;2.1019477e-44F", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+  gg.refineNumber("1", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+  revert = gg.getResults(9999, nil, nil, nil, nil, nil, nil, nil, nil)
+  gg.editAll("2", gg.TYPE_FLOAT)
+  gg.clearResults()
+  gg.colorToast("<font color='#39e75f'>BLOCK BODY ACTIVATED</font>")
+end
+
+largeHP_revert = nil
+
+function do_large_hp()
+  local sub = gg.choice({"ACTIVATE", "REVERT"}, nil, "LARGE HP")
+  if sub == nil then return end
+  if sub == 1 then
+    gg.setRanges(gg.REGION_ANONYMOUS)
+    gg.searchNumber("1.0F;0.85000002384F", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+    gg.refineNumber("1", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+    largeHP_revert = gg.getResults(5000, nil, nil, nil, nil, nil, nil, nil, nil)
+    for _, v in ipairs(largeHP_revert) do v.value = "1" end
+    gg.editAll("3", gg.TYPE_FLOAT)
+    local t = gg.getResults(5000, nil, nil, nil, nil, nil, nil, nil, nil)
+    gg.addListItems(t)
+    t = nil
+    gg.colorToast("<font color='#39e75f'>LARGE HP ACTIVATED</font>")
+  elseif sub == 2 then
+    if largeHP_revert ~= nil then
+      for _, v in ipairs(largeHP_revert) do v.value = "1"; v.freeze = false end
+      gg.setValues(largeHP_revert)
+      largeHP_revert = nil
+      gg.colorToast("<font color='#39e75f'>LARGE HP REVERTED</font>")
+    else
+      gg.toast("Nothing to revert")
+    end
+  end
+end
+
+function do_room_info()
+  gg.toast("Scanning lobby...")
+  local base = _getLibBase()
+  if base == 0 then gg.alert("Error: libcsharp.so not found."); return end
+  local page = _decodeADRP(base + OFF.func + 0x10)
+  if page == 0 then gg.alert("Error: ADRP decode failed."); return end
+  local obj  = _memReadPtr(page + OFF.staticObj)
+  local mid  = _ptrOk(obj) and _memReadPtr(obj + OFF.mid) or 0
+  local dict = _ptrOk(mid) and _memReadPtr(mid + OFF.dict) or 0
+  if not _ptrOk(dict) then gg.alert("Open this at the Hero Select screen."); return end
+  local pList = _findPlayerList(mid, dict)
+  if not _ptrOk(pList) then gg.alert("No player list found.\nRun at Hero Select before banning."); return end
+  local blue, red, err = _scanPlayers(pList)
+  if err then gg.alert("Error: "..err); return end
+  local totalH, totalB = 0, 0
+  for _, p in ipairs(blue) do if p.isBot then totalB=totalB+1 else totalH=totalH+1 end end
+  for _, p in ipairs(red)  do if p.isBot then totalB=totalB+1 else totalH=totalH+1 end end
+  local out =
+    "============================\n" ..
+    "       LOBBY SCANNER\n" ..
+    "  Total: "..totalH.." Players  "..totalB.." Bots\n" ..
+    "============================\n\n" ..
+    _buildTeamBlock(blue, "BLUE TEAM", 1).."\n"..
+    _buildTeamBlock(red,  "RED TEAM",  #blue + 1)
+  gg.alert(out)
+end
+
+function grass()
+  gg.colorToast("<font color='#39e75f'> PLEASE WAIT SIR </font>")
+  gg.setRanges(gg.REGION_C_ALLOC)
+  gg.searchNumber("0.72321426868", gg.TYPE_FLOAT)
+  gg.refineNumber("0.72321426868", gg.TYPE_FLOAT)
+  gg.getResults(99999)
+  gg.editAll("5", gg.TYPE_FLOAT)
+  gg.colorToast("<font color='#39e75f'>NO GRASS ACTIVATED</font>")
+end
+
+function dronex4()
+  gg.clearResults()
+  gg.setRanges(gg.REGION_ANONYMOUS)
+  gg.searchNumber("1089806008;-1053839852;1089722122", gg.TYPE_DWORD)
+  gg.searchNumber("1089806008", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("1094506008", gg.TYPE_DWORD)
+  gg.searchNumber("1094506008;-1053839852;1089722122", gg.TYPE_DWORD)
+  gg.searchNumber("-1053839852", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("-1048839852", gg.TYPE_DWORD)
+  gg.searchNumber("1094506008;-1048839852;1089722122", gg.TYPE_DWORD)
+  gg.searchNumber("1089722122", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("1094522122", gg.TYPE_DWORD)
+  gg.searchNumber("-1057677640;-1057761526;1110143140", gg.TYPE_DWORD)
+  gg.searchNumber("-1057677640", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("-1053577640", gg.TYPE_DWORD)
+  gg.searchNumber("-1053577640;-1057761526;1110143140", gg.TYPE_DWORD)
+  gg.searchNumber("-1057761526", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("-1054071526", gg.TYPE_DWORD)
+  gg.colorToast("<font color='#00E5FF'>DRONE VIEW 4x ACTIVATED</font>")
+end
+
+function dronex6()
+  gg.clearResults()
+  gg.setRanges(gg.REGION_ANONYMOUS)
+  gg.searchNumber("1089806008;-1053839852;1089722122", gg.TYPE_DWORD)
+  gg.searchNumber("1089806008", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("1095506008", gg.TYPE_DWORD)
+  gg.searchNumber("1094506008;-1053839852;1089722122", gg.TYPE_DWORD)
+  gg.searchNumber("-1053839852", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("-1047839852", gg.TYPE_DWORD)
+  gg.searchNumber("1094506008;-1048839852;1089722122", gg.TYPE_DWORD)
+  gg.searchNumber("1089722122", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("1095522122", gg.TYPE_DWORD)
+  gg.searchNumber("-1057677640;-1057761526;1110143140", gg.TYPE_DWORD)
+  gg.searchNumber("-1057677640", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("-1052577640", gg.TYPE_DWORD)
+  gg.searchNumber("-1053577640;-1057761526;1110143140", gg.TYPE_DWORD)
+  gg.searchNumber("-1057761526", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("-1053071526", gg.TYPE_DWORD)
+  gg.colorToast("<font color='#00E5FF'>DRONE VIEW 6x ACTIVATED</font>")
+end
+
+function dronex8()
+  gg.clearResults()
+  gg.setRanges(gg.REGION_ANONYMOUS)
+  gg.searchNumber("1089806008;-1053839852;1089722122", gg.TYPE_DWORD)
+  gg.searchNumber("1089806008", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("1097506008", gg.TYPE_DWORD)
+  gg.searchNumber("1094506008;-1053839852;1089722122", gg.TYPE_DWORD)
+  gg.searchNumber("-1053839852", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("-1045839852", gg.TYPE_DWORD)
+  gg.searchNumber("1094506008;-1048839852;1089722122", gg.TYPE_DWORD)
+  gg.searchNumber("1089722122", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("1097522122", gg.TYPE_DWORD)
+  gg.searchNumber("-1057677640;-1057761526;1110143140", gg.TYPE_DWORD)
+  gg.searchNumber("-1057677640", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("-1050577640", gg.TYPE_DWORD)
+  gg.searchNumber("-1053577640;-1057761526;1110143140", gg.TYPE_DWORD)
+  gg.searchNumber("-1057761526", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("-1051071526", gg.TYPE_DWORD)
+  gg.colorToast("<font color='#00E5FF'>DRONE VIEW 8x ACTIVATED</font>")
+end
+
+function damage()
+  gg.clearResults()
+  gg.setRanges(gg.REGION_ANONYMOUS)
+  gg.searchNumber("5;55;555;5555;5555", gg.TYPE_DWORD, false, gg.SIGN_EQUAL, 0, -1, 0)
+  gg.refineNumber("50", gg.TYPE_DWORD, false, gg.SIGN_EQUAL, 0, -1, 0)
+  revert = gg.getResults(5, nil, nil, nil, nil, nil, nil, nil, nil)
+  gg.editAll("500", gg.TYPE_DWORD)
+  gg.processResume()
+  gg.colorToast("<font color='#39e75f'>DAMAGE UP 5% ACTIVATED</font>")
+end
+
+function mana()
+  gg.clearResults()
+  gg.setRanges(gg.REGION_ANONYMOUS)
+  gg.searchNumber("222222;222;22222;2222;2222222", gg.TYPE_DWORD, false, gg.SIGN_EQUAL, 0, -1, 0)
+  gg.refineNumber("2", gg.TYPE_DWORD, false, gg.SIGN_EQUAL, 0, -1, 0)
+  revert = gg.getResults(2000, nil, nil, nil, nil, nil, nil, nil, nil)
+  gg.editAll("20", gg.TYPE_DWORD)
+  gg.processResume()
+  gg.colorToast("<font color='#39e75f'>LESS MANA 2% ACTIVATED</font>")
+end
+
+function retri()
+  gg.clearResults()
+  gg.setRanges(gg.REGION_ANONYMOUS)
+  gg.searchNumber("35000", gg.TYPE_DWORD, false, gg.SIGN_EQUAL, 0, -1, 0)
+  gg.refineNumber("35000", gg.TYPE_DWORD, false, gg.SIGN_EQUAL, 0, -1, 0)
+  revert = gg.getResults(2000, nil, nil, nil, nil, nil, nil, nil, nil)
+  gg.editAll("0", gg.TYPE_DWORD)
+  gg.processResume()
+  gg.colorToast("<font color='#39e75f'>NO CD RETRI ACTIVATED</font>")
+end
+
+function MiyaV1()
+  gg.searchNumber("240;115;2225", gg.TYPE_DWORD)
+  gg.searchNumber("115;2225", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("999999", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.searchNumber("240;999999", gg.TYPE_DWORD)
+  gg.searchNumber("240", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("2500", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.colorToast("<font color='#39e75f'>ONE HIT MIYA ACTIVATED</font>")
+end
+
+function b1()
+  gg.clearResults()
+  gg.searchNumber("240;133;2250", gg.TYPE_DWORD)
+  gg.searchNumber("133;2250", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("999999", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.searchNumber("240;999999", gg.TYPE_DWORD)
+  gg.searchNumber("240", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("2500", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.toast("Script Berhasil")
+end
+
+function b2()
+  gg.clearResults()
+  gg.searchNumber("255;111;2530", gg.TYPE_DWORD)
+  gg.searchNumber("111;2530", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("999999", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.searchNumber("255;999999", gg.TYPE_DWORD)
+  gg.searchNumber("260", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("2500", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.toast("Script Berhasil")
+end
+
+function b3()
+  gg.clearResults()
+  gg.searchNumber("240;115;2225", gg.TYPE_DWORD)
+  gg.searchNumber("115;2225", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("999999", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.searchNumber("240;999999", gg.TYPE_DWORD)
+  gg.searchNumber("240", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("2500", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.toast("Script Berhasil")
+end
+
+function b4()
+  gg.clearResults()
+  gg.searchNumber("262;128;2700", gg.TYPE_DWORD)
+  gg.searchNumber("128;2700", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("999999", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.searchNumber("262;999999", gg.TYPE_DWORD)
+  gg.searchNumber("262", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("2500", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.toast("Script Berhasil")
+end
+
+function b5()
+  gg.clearResults()
+  gg.searchNumber("260;123;2443", gg.TYPE_DWORD)
+  gg.searchNumber("123;2443", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("999999", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.searchNumber("260;999999", gg.TYPE_DWORD)
+  gg.searchNumber("260", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("2500", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.toast("Script Berhasil")
+end
+
+function b6()
+  gg.clearResults()
+  gg.searchNumber("245;111;2260", gg.TYPE_DWORD)
+  gg.searchNumber("111;2260", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("999999", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.searchNumber("245;999999", gg.TYPE_DWORD)
+  gg.searchNumber("245", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("2500", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.toast("Script Berhasil")
+end
+
+function b7()
+  gg.clearResults()
+  gg.searchNumber("260;118;2440", gg.TYPE_DWORD)
+  gg.searchNumber("118;2440", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("999999", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.searchNumber("260;999999", gg.TYPE_DWORD)
+  gg.searchNumber("260", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("2500", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.toast("Script Berhasil")
+end
+
+function b8()
+  gg.clearResults()
+  gg.searchNumber("265;123;2511", gg.TYPE_DWORD)
+  gg.searchNumber("123;2511", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("999999", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.searchNumber("265;999999", gg.TYPE_DWORD)
+  gg.searchNumber("265", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("2500", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.toast("Script Berhasil")
+end
+
+function b9()
+  gg.clearResults()
+  gg.searchNumber("250;112;2403", gg.TYPE_DWORD)
+  gg.searchNumber("112;2403", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("999999", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.searchNumber("250;999999", gg.TYPE_DWORD)
+  gg.searchNumber("250", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("2500", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.toast("Script Berhasil")
+end
+
+function b10()
+  gg.clearResults()
+  gg.searchNumber("250;115;2380", gg.TYPE_DWORD)
+  gg.searchNumber("115;2380", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("999999", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.searchNumber("250;999999", gg.TYPE_DWORD)
+  gg.searchNumber("250", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("2500", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.toast("Script Berhasil")
+end
+
+function b11()
+  gg.clearResults()
+  gg.searchNumber("240;145;2270", gg.TYPE_DWORD)
+  gg.searchNumber("145;2270", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("999999", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.searchNumber("240;999999", gg.TYPE_DWORD)
+  gg.searchNumber("240", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("2500", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.toast("Script Berhasil")
+end
+
+function b12()
+  gg.clearResults()
+  gg.searchNumber("245;112;2360", gg.TYPE_DWORD)
+  gg.searchNumber("112;2250", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("999999", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.searchNumber("245;999999", gg.TYPE_DWORD)
+  gg.searchNumber("245", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("2500", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.toast("Script Berhasil")
+end
+
+function b13()
+  gg.clearResults()
+  gg.searchNumber("265;117;2580", gg.TYPE_DWORD)
+  gg.searchNumber("117;2580", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("999999", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.searchNumber("265;999999", gg.TYPE_DWORD)
+  gg.searchNumber("265", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("2500", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.toast("Script Berhasil")
+end
+
+function retri()
+  gg.clearResults()
+  gg.setRanges(gg.REGION_ANONYMOUS)
+  gg.searchNumber("35000", gg.TYPE_DWORD, false, gg.SIGN_EQUAL, 0, -1, 0)
+  gg.refineNumber("35000", gg.TYPE_DWORD, false, gg.SIGN_EQUAL, 0, -1, 0)
+  revert = gg.getResults(2000, nil, nil, nil, nil, nil, nil, nil, nil)
+  gg.editAll("0", gg.TYPE_DWORD)
+  gg.processResume()
+  gg.colorToast("<font color='#39e75f'>NO CD RETRI ACTIVATED</font>")
+end
+
+function MiyaV1()
+  gg.searchNumber("240;115;2225", gg.TYPE_DWORD)
+  gg.searchNumber("115;2225", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("999999", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.searchNumber("240;999999", gg.TYPE_DWORD)
+  gg.searchNumber("240", gg.TYPE_DWORD)
+  gg.getResults(100)
+  gg.editAll("2500", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.colorToast("<font color='#39e75f'>ONE HIT MIYA ACTIVATED</font>")
+end
+
+function init()
+  local L0_51, L1_52
+  L0_51 = Pages
+  stab = L0_51
+  L0_51 = Title
+  ttitle = L0_51
+  L0_51 = FloatingWindowIcon
+  xfcpic = L0_51
+end
+
+FloatingWindowIcon = "https://www.xiaoman.top/assets/img/elgg.png"
+Title = "𝐊𝐀𝐏𝐓 𝐕𝐈𝐏"
+Pages = {
+  "𝐀𝐧𝐧𝐨𝐮𝐧𝐜𝐞𝐦𝐞𝐧𝐭",
+  "𝐀𝐧𝐭𝐢-𝐑𝐞𝐩𝐨𝐫𝐭 | 𝐌𝐚𝐩𝐡𝐚𝐜𝐤",
+  "𝐃𝐚𝐦𝐚𝐠𝐞 | 𝐌𝐚𝐧𝐚 𝐁𝐮𝐟𝐟",
+  "𝐂𝐫𝐞𝐝𝐢𝐭𝐬"
+}
+WindowSize = {width = 380, height = 740} -- Slimmed the width and increased the height
+WindowBackground = "#FF0D0D0D"           -- Near-black gray
+WindowTextColor = "#FFE0E0E0"            -- Soft white
+WindowAccentColor = "#FF00E5FF"           -- Electric cyan
+init()
+uistart({
+  {
+    CAtext("𝐊𝐀𝐏𝐓 𝐕𝐈𝐏", "#FF00E5FF", "20sp", true),
+    CAline("━━━━━━━━━━━━━━━━━━━━"),
+    CAtext("𝐖e𝐥𝐜𝐨𝐦e 𝐭𝐨 𝐊𝐀𝐏𝐓 𝐕𝐈𝐏", "#FFE0E0E0", "16sp"),
+    CAline("━━━━━━━━━━━━━━━━━━━━"),
+    CAtext("𝐈𝐦𝐩𝐨𝐫𝐭𝐚𝐧𝐭 𝐍𝐨𝐭𝐢𝐜e𝐬:", "#FF888888", "16sp"),
+    CAline("━━━━━━━━━━━━━━━━━━━━"),
+    CAtext("• 𝐊ee𝐩 𝐲𝐨𝐮𝐫 𝐚𝐜𝐜𝐨𝐮𝐧𝐭 𝐬e𝐜𝐮𝐫e", "#FF888888", "16sp"),
+    CAline("━━━━━━━━━━━━━━━━━━━━"),
+    CAtext("• 𝐏𝐥𝐚𝐲 𝐬𝐚𝐟e 𝐚𝐧𝐝 𝐬𝐦𝐚𝐫𝐭", "#FF888888", "16sp"),
+    CAline("━━━━━━━━━━━━━━━━━━━━"),
+    CAtext("• 𝐑e𝐩𝐨𝐫𝐭 𝐛𝐮𝐠𝐬 𝐭𝐨 𝐬𝐮𝐩𝐩𝐨𝐫𝐭", "#FF888888", "16sp")
+  },
+  {
+    CAtext("🛡 𝐀𝐧𝐭𝐢-𝐑𝐞𝐩𝐨𝐫𝐭 | 𝐌𝐚𝐩𝐡𝐚𝐜𝐤", "#FF00E5FF", "17sp", true),
+    CAswitch("𝗕𝗬𝗣𝗔𝗦𝗦", function()
+      SECURITY_CHECK()
+    end
+    ),
+    CAswitch("𝗔𝗡𝗧𝗜 𝗥𝗘𝗣𝗢𝗥𝗧", function()
+      antiban()
+    end
+    ),
+    CAswitch("𝗔𝗡𝗧𝗜 𝗕𝗔𝗡", function()
+      anticheat()
+    end
+    ),
+    CAswitch("𝗠𝗔𝗣𝗛𝗔𝗖𝗞", function()
+      do_maphack_run()
+    end
+    ),
+    CAswitch("𝗟𝗔𝗥𝗚𝗘 𝗛𝗣", function()
+      do_large_hp()
+    end
+    ),
+    CAbutton("𝗥𝗢𝗢𝗠 𝗜𝗡𝗙𝗢", function()
+      do_room_info()
+    end
+    ),
+    CAswitch("𝗗𝗥𝗢𝗡𝗘 𝗩𝗜𝗘𝗪 4X", function()
+      dronex4()
+    end
+    ),
+    CAswitch("𝗗𝗥𝗢𝗡𝗘 𝗩𝗜𝗘𝗪 6X", function()
+      dronex6()
+    end
+    ),
+    CAswitch("𝗗𝗥𝗢𝗡𝗘 𝗩𝗜𝗘𝗪 8X", function()
+      dronex8()
+    end
+    ),
+    CAtext("𝗖𝗨𝗦𝗧𝗢𝗠 𝗥𝗢𝗠 | 𝗔.𝗜", "#FF00E5FF", "11sp"),
+    CAswitch("𝗡𝗢 𝗖𝗗 𝗥𝗘𝗧𝗥𝗜 𝗔𝗜 𝗢𝗡𝗟𝗬 ", function()
+      retri()
+    end
+    ),
+    CAtext("𝐑𝐮𝐧 𝐛𝐞𝐟𝐨𝐫𝐞 𝐮𝐬𝐢𝐧𝐠 𝐚𝐧𝐲 𝐟𝐞𝐚𝐭𝐮𝐫𝐞.", "#FF555555", "12sp")
+  },
+  {
+    CAtext("⚡ 𝐃𝐚𝐦𝐚𝐠𝐞 | 𝐌𝐚𝐧𝐚 𝐁𝐮𝐟𝐟", "#FF00E5FF", "17sp", true),
+    CAswitch("𝗗𝗔𝗠𝗔𝗚𝗘 𝗨𝗣 5%", function()
+      damage()
+    end
+    ),
+    CAswitch("𝗟𝗘𝗦𝗦 𝗠𝗔𝗡𝗔 2%", function()
+      mana()
+    end
+    ),
+    CAtext("𝗗𝗔𝗠𝗔𝗚𝗘 𝗛𝗘𝗥𝗢 𝗕𝗨𝗙𝗙", "#FF00E5FF", "11sp"),
+    CAswitch("𝗟𝗔𝗬𝗟𝗔 5% 𝗗𝗔𝗠𝗔𝗚𝗘", function()
+      b1()
+    end
+    ),
+    CAswitch("𝗕𝗔𝗗𝗔𝗡𝗚 5% 𝗗𝗔𝗠𝗔𝗚𝗘", function()
+      b2()
+    end
+    ),
+    CAswitch("𝗠𝗜𝗬𝗔 5% 𝗗𝗔𝗠𝗔𝗚𝗘", function()
+      b3()
+    end
+    ),
+    CAswitch("𝗝𝗨𝗟𝗜𝗔𝗡 5% 𝗗𝗔𝗠𝗔𝗚𝗘", function()
+      b4()
+    end
+    ),
+    CAswitch("𝗔𝗟𝗨𝗖𝗔𝗥𝗗 5% 𝗗𝗔𝗠𝗔𝗚𝗘", function()
+      b5()
+    end
+    ),
+    CAswitch("𝗛𝗔𝗡𝗔𝗕𝗜 5% 𝗗𝗔𝗠𝗔𝗚𝗘", function()
+      b6()
+    end
+    ),
+    CAswitch("𝗦𝗔𝗕𝗘𝗥 5% 𝗗𝗔𝗠𝗔𝗚𝗘", function()
+      b7()
+    end
+    ),
+    CAswitch("𝗭𝗜𝗟𝗢𝗡𝗚 5% 𝗗𝗔𝗠𝗔𝗚𝗘", function()
+      b8()
+    end
+    ),
+    CAswitch("𝗘𝗨𝗗𝗢𝗥𝗔 5% 𝗗𝗔𝗠𝗔𝗚𝗘", function()
+      b9()
+    end
+    ),
+    CAswitch("𝗡𝗔𝗡𝗔 5% 𝗗𝗔𝗠𝗔𝗚𝗘", function()
+      b10()
+    end
+    ),
+    CAswitch("𝗕𝗥𝗨𝗡𝗢 5% 𝗗𝗔𝗠𝗔𝗚𝗘", function()
+      b11()
+    end
+    ),
+    CAswitch("𝗩𝗘𝗫𝗔𝗡𝗔 5% 𝗗𝗔𝗠𝗔𝗚𝗘", function()
+      b12()
+    end
+    ),
+    CAswitch("𝗗𝗬𝗥𝗥𝗢𝗧𝗛 5% 𝗗𝗔𝗠𝗔𝗚𝗘", function()
+      b13()
+    end
+    ),
+    CAtext("𝐒𝐞𝐥𝐞𝐜𝐭 𝐚 𝐟𝐞𝐚𝐭𝐮𝐫𝐞 𝐛𝐞𝐥𝐨𝐰:", "#FF555555", "12sp")
+  },
+  {
+  CAtext("👑 𝐂𝐫𝐞𝐝𝐢𝐭𝐬", "#FF00E5FF", "17sp", true),
+    CAtext("𝐒𝐜𝐫𝐢𝐩𝐭 𝐛𝐲: 𝐊𝐀𝐏𝐓", "#FFE0E0E0", "14sp", true),
+    CAtext("𝐕e𝐫𝐬𝐢𝐨𝐧: 𝟐.𝟎", "#FF00E5FF", "13sp", true),
+    CAtext("© 𝟐𝟎𝟐𝟔 𝐀𝐥𝐥 𝐑𝐢𝐠𝐡𝐭𝐬 𝐑e𝐬e𝐫𝐯e𝐝", "#FF555555", "12sp", true),
+    CAline(""),
+    CAtext("🇻 🇮 🇵  🇰 🇪 🇾   •100-3𝙙𝙖𝙮𝙨  •200-7𝙙𝙖𝙮𝙨  •400-30𝙙𝙖𝙮𝙨  •500 - 𝙎𝙚𝙖𝙨𝙤𝙣𝙖𝙗𝙡𝙚   •1000 𝙇𝙞𝙛𝙚𝙩𝙞𝙢𝙚", "#FF555555", "15sp", true),
+    CAline(""),
+    CAbutton("𝗝𝗢𝗜𝗡 𝗠𝗬 𝗧𝗘𝗟𝗘𝗚𝗥𝗔𝗠 𝗣𝗔𝗚𝗘", function()
+      gg.goURL("https://t.me/kaptvipv1") -- Replace with your actual Telegram link
+    end
+    ),
+    CAbutton("🚪𝗘𝗫𝗜𝗧 𝗦𝗖𝗥𝗜𝗣𝗧", function()
+      Lock.unUi()
+    end
+    , function()
+      local L0_53, L1_54
+    end
+    , "𝐓𝐚𝐩 𝐭𝐨 𝐜𝐥𝐨𝐬𝐞 𝐭𝐡𝐞 𝐬𝐜𝐫𝐢𝐩𝐭")
+  }
+})
+Lock.Ui(invoke, nil, function(A0_55)
+  print(A0_55)
+end
+)
