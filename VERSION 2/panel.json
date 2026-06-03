@@ -1,0 +1,17 @@
+{
+  "app_enabled": true,
+  "notice": "Welcome to KAPT VIP! Enjoy your access.",
+  "free_keys": [
+    "KAPT-FREE-0003",
+    "KAPT-FREE-0004",
+    "KAPT-FREE-0005"
+  ],
+  "vip_keys": [
+    "KAPT-VIP-0001",
+    "KAPT-VIP-0002",
+    "KAPT-VIP-0003"
+  ],
+  "disabled_keys": [
+    
+  ]
+}
